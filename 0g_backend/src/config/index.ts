@@ -28,6 +28,9 @@ export const config = {
   },
   
   og: {
+    network: process.env.ZEROG_NETWORK || 'testnet',
+    privateKey: process.env.ZEROG_PRIVATE_KEY || '',
+    model: process.env.ZEROG_MODEL || 'deepseek/deepseek-chat',
     storageEndpoint: process.env.OG_STORAGE_ENDPOINT || 'https://storage.0g.ai',
     teeEndpoint: process.env.OG_TEE_ENDPOINT || 'https://tee.0g.ai',
   },

@@ -7,7 +7,7 @@ import {
   determineRiskLevel,
   generateWarnings,
   generateRecommendation,
-  simulateOGVerification,
+  generateOGVerification,
   generateAnalysisId,
 } from '../utils/riskAnalysis';
 import cache from '../utils/cache';
@@ -40,9 +40,9 @@ export async function analyzeContractHandler(req: Request, res: Response) {
     logger.debug('Fetching token info', { address, network });
     const tokenInfo = await getTokenInfo(address, network);
 
-    // Analyze contract
-    logger.debug('Analyzing contract code', { address, network });
-    const { factors, code } = await analyzeContract(address, network);
+    // Analyze contract using ONLY real 0G (NO FALLBACK)
+    logger.debug('Analyzing contract with 0G Compute Layer', { address, network });
+    const { factors, code, ogVerification: ogData, analysisId } = await analyzeContract(address, network);
 
     // Calculate overall risk
     const overallRisk = calculateOverallRisk(factors);
@@ -52,12 +52,12 @@ export async function analyzeContractHandler(req: Request, res: Response) {
     const warnings = generateWarnings(factors, code);
     const recommendation = generateRecommendation(riskLevel);
 
-    // Simulate 0G verification
-    const ogVerification = await simulateOGVerification();
+    // Generate 0G verification (use real data from 0G)
+    const ogVerification = generateOGVerification(ogData);
 
     // Create analysis result
     const analysis: AnalysisResult = {
-      id: generateAnalysisId(),
+      id: analysisId || generateAnalysisId(),
       contractAddress: address,
       network,
       tokenInfo,

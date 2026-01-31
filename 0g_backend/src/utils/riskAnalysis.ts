@@ -60,17 +60,18 @@ export function generateRecommendation(riskLevel: 'LOW' | 'MEDIUM' | 'HIGH'): st
   }
 }
 
-export async function simulateOGVerification(): Promise<OGVerification> {
-  // Simulate TEE verification and storage on 0G Network
-  const cost = 0.002; // 0G cost in USD
+export function generateOGVerification(ogVerification: any): OGVerification {
+  // Use real 0G verification data
   const cloudCost = 0.05; // Traditional cloud cost in USD
-  const savingsPercentage = ((cloudCost - cost) / cloudCost) * 100;
+  const savingsPercentage = ogVerification.cost > 0 
+    ? ((cloudCost - ogVerification.cost) / cloudCost) * 100
+    : 96;
 
   return {
-    teeVerified: true,
-    storageId: `0g_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-    analysisTimestamp: new Date().toISOString(),
-    cost,
+    teeVerified: ogVerification.teeVerified,
+    storageId: ogVerification.storageId,
+    analysisTimestamp: ogVerification.timestamp,
+    cost: ogVerification.cost,
     cloudCost,
     savingsPercentage: Math.round(savingsPercentage),
   };
