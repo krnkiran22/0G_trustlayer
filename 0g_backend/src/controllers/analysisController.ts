@@ -115,7 +115,12 @@ export async function analyzeContractHandler(req: Request, res: Response) {
 
 export function getAnalysisHistoryHandler(req: Request, res: Response) {
   try {
-    const limit = parseInt(req.query.limit as string) || 10;
+    const limitParam = req.query.limit;
+    let limit = 10; // default
+    
+    if (limitParam && typeof limitParam === 'string') {
+      limit = parseInt(limitParam) || 10;
+    }
     const history = analysisHistory.slice(0, limit).map(a => ({
       id: a.id,
       contractAddress: a.contractAddress,
@@ -185,21 +190,21 @@ export function getAnalysisByIdHandler(req: Request, res: Response) {
 
 export function getAnalysisByAddressHandler(req: Request, res: Response) {
   try {
-    const { address } = req.params;
+    const address = req.params.address as string; // Express params are strings
     const { network } = req.query;
 
-    if (!network) {
+    if (!network || typeof network !== 'string') {
       return res.status(400).json({
         success: false,
         error: {
-          message: 'Network query parameter is required',
+          message: 'Network query parameter is required and must be a string',
           code: 'MISSING_PARAMETER',
         },
         timestamp: new Date().toISOString(),
       });
     }
 
-    const analysis = cache.getAnalysis(address, network as string);
+    const analysis = cache.getAnalysis(address, network);
 
     if (!analysis) {
       logger.debug('Analysis not found in cache', { address, network });
