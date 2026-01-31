@@ -59,7 +59,8 @@ export async function analyzeContract(
     console.log('📤 API Request:', { url: `${API_BASE_URL}/analyze`, address, network });
     const response = await api.post('/analyze', { address, network });
     console.log('📥 API Response:', response.data);
-    return response.data;
+    // Backend returns { success: true, data: {...} }, we need just the data
+    return response.data?.data || response.data;
   } catch (error) {
     console.error('❌ API Error:', error);
     throw new Error('Failed to analyze contract');
@@ -107,7 +108,8 @@ export async function getAnalysisByAddress(
 ): Promise<AnalysisResult | null> {
   try {
     const response = await api.get(`/analysis/address/${address}?network=${network}`);
-    return response.data;
+    // Backend returns { success: true, data: {...} }, we need just the data
+    return response.data?.data || response.data;
   } catch (error) {
     return null;
   }
