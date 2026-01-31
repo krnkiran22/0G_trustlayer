@@ -40,77 +40,17 @@ async function getOGBroker(): Promise<ZeroGBrokerService> {
     const walletAddress = ogBroker.getWalletAddress();
     logger.info('📝 Wallet address:', { walletAddress });
 
-    // Create account if it doesn't exist
-    // The ensureAccountReady() method will fail if account doesn't exist
-    // So we need to create the ledger first using the ledger manager
-    try {
-      logger.info('🔍 Checking if account exists...');
-      
-      // Try to check if ledger exists
-      const ledgerExists = await (ogBroker as any).ledger?.getLedger().catch(() => null);
-      
-      if (!ledgerExists) {
-        logger.info('📝 No ledger found, creating new ledger with initial deposit...');
-        
-        // Create ledger using the ledger manager
-        const initialDepositAmount = 5; // A0GI (deposit 5 out of your 10 A0GI)
-        await (ogBroker as any).ledger?.addLedger(initialDepositAmount);
-        
-        logger.info('✅ Ledger created successfully with initial deposit of', initialDepositAmount, 'A0GI');
-        
-        // Wait a bit for transaction to be confirmed
-        logger.info('⏳ Waiting for ledger transaction to be confirmed...');
-        await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
-        
-      } else {
-        logger.info('✅ Ledger already exists');
-      }
-      
-      // Check current balance
-      try {
-        const currentBalance = await ogBroker.getBalance();
-        logger.info('💰 Current ledger balance:', currentBalance);
-        
-        // If balance is insufficient, deposit more
-        if (!currentBalance.main || parseFloat(currentBalance.main) < 0.5) {
-          logger.info('⚠️  Insufficient balance detected, depositing additional funds...');
-          const additionalDeposit = 3; // A0GI
-          await (ogBroker as any).ledger?.depositFund(additionalDeposit);
-          logger.info('✅ Deposited additional', additionalDeposit, 'A0GI to ledger');
-          
-          // Wait for deposit transaction to confirm
-          await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-      } catch (balanceError: any) {
-        logger.warn('Could not check balance, will try to ensure account ready anyway:', balanceError.message);
-      }
-      
-      // Now ensure account is ready
-      logger.info('🔄 Ensuring account is ready...');
-      const accountReady = await ogBroker.ensureAccountReady();
-      if (!accountReady) {
-        throw new Error(
-          'Account not ready after ledger creation and deposit. ' +
-          'Please wait a few seconds and try again, or check your wallet balance at: ' +
-          'https://explorer-testnet.0g.ai/address/' + walletAddress
-        );
-      }
-      
-    } catch (error: any) {
-      logger.error('Failed to initialize account:', error);
-      
-      // Provide helpful error message
-      if (error.message?.includes('Account does not exist') || error.message?.includes('LedgerNotExists')) {
-        throw new Error(
-          '0G account does not exist. Please ensure:\n' +
-          '1. Your wallet has sufficient A0GI tokens for gas fees\n' +
-          '2. Your wallet has at least 3 A0GI for the initial deposit\n' +
-          'Get testnet tokens from: https://faucet.0g.ai\n' +
-          'Wallet address: ' + walletAddress
-        );
-      }
-      
-      throw error;
+    // Ensure account is ready (should already be created via CLI)
+    logger.info('🔍 Checking if account is ready...');
+    
+    const accountReady = await ogBroker.ensureAccountReady();
+    if (!accountReady) {
+      throw new Error(
+        '0G account not ready. Please create an account using the CLI:\n' +
+        'cd /Users/kiran/Desktop/0G_trustlayer/0g_backend && ./create-account.sh\n\n' +
+        'Or check your wallet balance at:\n' +
+        'https://explorer-testnet.0g.ai/address/' + walletAddress
+      );
     }
 
     const balance = await ogBroker.getBalance();
