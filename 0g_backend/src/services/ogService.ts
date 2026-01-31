@@ -25,7 +25,7 @@ async function getOGBroker(): Promise<ZeroGBrokerService> {
       network: config.og.network as 'testnet' | 'mainnet',
       privateKey: config.og.privateKey,
       minBalance: 0.1, // Minimum balance in A0GI
-      initialDeposit: 3, // Initial deposit when creating ledger
+      initialDeposit: 5, // Initial deposit when creating ledger (increased to 5 A0GI)
       disableFallback: true, // NO CLOUD FALLBACK
       disableSimulation: true, // NO SIMULATION
     });
@@ -37,13 +37,82 @@ async function getOGBroker(): Promise<ZeroGBrokerService> {
       throw new Error('Failed to initialize 0G Broker Service. Check your private key and network.');
     }
 
-    // Ensure account is ready (has ledger and funds)
-    const accountReady = await ogBroker.ensureAccountReady();
-    if (!accountReady) {
-      throw new Error('0G account not ready. Please deposit funds to your wallet.');
+    const walletAddress = ogBroker.getWalletAddress();
+    logger.info('📝 Wallet address:', { walletAddress });
+
+    // Create account if it doesn't exist
+    // The ensureAccountReady() method will fail if account doesn't exist
+    // So we need to create the ledger first using the ledger manager
+    try {
+      logger.info('🔍 Checking if account exists...');
+      
+      // Try to check if ledger exists
+      const ledgerExists = await (ogBroker as any).ledger?.getLedger().catch(() => null);
+      
+      if (!ledgerExists) {
+        logger.info('📝 No ledger found, creating new ledger with initial deposit...');
+        
+        // Create ledger using the ledger manager
+        const initialDepositAmount = 5; // A0GI (deposit 5 out of your 10 A0GI)
+        await (ogBroker as any).ledger?.addLedger(initialDepositAmount);
+        
+        logger.info('✅ Ledger created successfully with initial deposit of', initialDepositAmount, 'A0GI');
+        
+        // Wait a bit for transaction to be confirmed
+        logger.info('⏳ Waiting for ledger transaction to be confirmed...');
+        await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
+        
+      } else {
+        logger.info('✅ Ledger already exists');
+      }
+      
+      // Check current balance
+      try {
+        const currentBalance = await ogBroker.getBalance();
+        logger.info('💰 Current ledger balance:', currentBalance);
+        
+        // If balance is insufficient, deposit more
+        if (!currentBalance.main || parseFloat(currentBalance.main) < 0.5) {
+          logger.info('⚠️  Insufficient balance detected, depositing additional funds...');
+          const additionalDeposit = 3; // A0GI
+          await (ogBroker as any).ledger?.depositFund(additionalDeposit);
+          logger.info('✅ Deposited additional', additionalDeposit, 'A0GI to ledger');
+          
+          // Wait for deposit transaction to confirm
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+      } catch (balanceError: any) {
+        logger.warn('Could not check balance, will try to ensure account ready anyway:', balanceError.message);
+      }
+      
+      // Now ensure account is ready
+      logger.info('🔄 Ensuring account is ready...');
+      const accountReady = await ogBroker.ensureAccountReady();
+      if (!accountReady) {
+        throw new Error(
+          'Account not ready after ledger creation and deposit. ' +
+          'Please wait a few seconds and try again, or check your wallet balance at: ' +
+          'https://explorer-testnet.0g.ai/address/' + walletAddress
+        );
+      }
+      
+    } catch (error: any) {
+      logger.error('Failed to initialize account:', error);
+      
+      // Provide helpful error message
+      if (error.message?.includes('Account does not exist') || error.message?.includes('LedgerNotExists')) {
+        throw new Error(
+          '0G account does not exist. Please ensure:\n' +
+          '1. Your wallet has sufficient A0GI tokens for gas fees\n' +
+          '2. Your wallet has at least 3 A0GI for the initial deposit\n' +
+          'Get testnet tokens from: https://faucet.0g.ai\n' +
+          'Wallet address: ' + walletAddress
+        );
+      }
+      
+      throw error;
     }
 
-    const walletAddress = ogBroker.getWalletAddress();
     const balance = await ogBroker.getBalance();
     
     logger.info('✅ 0G Broker Service initialized successfully', { 
