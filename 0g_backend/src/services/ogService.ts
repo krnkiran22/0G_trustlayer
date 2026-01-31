@@ -40,17 +40,42 @@ async function getOGBroker(): Promise<ZeroGBrokerService> {
     const walletAddress = ogBroker.getWalletAddress();
     logger.info('📝 Wallet address:', { walletAddress });
 
-    // Ensure account is ready (should already be created via CLI)
-    logger.info('🔍 Checking if account is ready...');
+    // Try to deposit funds first - this should create the account if it doesn't exist
+    logger.info('🔍 Attempting to deposit funds to create/fund ledger account...');
     
+    try {
+      // The depositFunds method should create the account and deposit in one step
+      const depositAmount = 3; // 3 A0GI
+      logger.info('💵 Depositing', depositAmount, 'A0GI to ledger...');
+      
+      await ogBroker.depositFunds(depositAmount);
+      
+      logger.info('✅ Deposit successful! Account should now be ready.');
+      
+      // Wait for transaction to confirm
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
+    } catch (depositError: any) {
+      logger.error('❌ Deposit failed:', depositError.message);
+      
+      // If deposit fails, throw helpful error
+      throw new Error(
+        'Failed to create/fund 0G ledger account. This could mean:\n' +
+        '1. Insufficient wallet balance (need at least 3 A0GI)\n' +
+        '2. Network issues\n' +
+        '3. Gas fees too high\n\n' +
+        'Your wallet: ' + walletAddress + '\n' +
+        'Check balance at: https://explorer-testnet.0g.ai/address/' + walletAddress + '\n' +
+        'Get tokens from: https://faucet.0g.ai\n\n' +
+        'Error: ' + depositError.message
+      );
+    }
+    
+    // Now ensure account is ready
+    logger.info('🔄 Verifying account is ready...');
     const accountReady = await ogBroker.ensureAccountReady();
     if (!accountReady) {
-      throw new Error(
-        '0G account not ready. Please create an account using the CLI:\n' +
-        'cd /Users/kiran/Desktop/0G_trustlayer/0g_backend && ./create-account.sh\n\n' +
-        'Or check your wallet balance at:\n' +
-        'https://explorer-testnet.0g.ai/address/' + walletAddress
-      );
+      throw new Error('Account still not ready after deposit. Please wait 30 seconds and try again.');
     }
 
     const balance = await ogBroker.getBalance();
@@ -102,8 +127,8 @@ async function getProvider(): Promise<{ address: string; endpoint: string; model
     logger.info('🤝 Acknowledging provider...', { 
       providerAddress, 
       model: selectedService.model,
-      inputPrice: selectedService.inputPrice,
-      outputPrice: selectedService.outputPrice
+      inputPrice: selectedService.inputPrice.toString(),
+      outputPrice: selectedService.outputPrice.toString()
     });
     
     const acknowledged = await broker.acknowledgeProvider(providerAddress);
