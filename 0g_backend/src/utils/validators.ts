@@ -6,7 +6,7 @@ export function isValidAddress(address: string): boolean {
 }
 
 export function isValidNetwork(network: string): network is Network {
-  const validNetworks: Network[] = ['ethereum', 'bsc', 'polygon'];
+  const validNetworks: Network[] = ['ethereum', 'bsc', 'polygon', '0g'];
   return validNetworks.includes(network as Network);
 }
 
@@ -36,7 +36,7 @@ export function validateNetwork(network: string): {
   if (!isValidNetwork(network)) {
     return {
       valid: false,
-      error: 'Invalid network. Must be: ethereum, bsc, or polygon',
+      error: 'Invalid network. Must be: ethereum, bsc, polygon, or 0g',
     };
   }
 

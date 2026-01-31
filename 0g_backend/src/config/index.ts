@@ -25,6 +25,12 @@ export const config = {
       rpcUrl: process.env.POLYGON_RPC || 'https://polygon-rpc.com',
       explorer: 'https://polygonscan.com',
     },
+    '0g': {
+      name: '0G Mainnet',
+      chainId: 16600,
+      rpcUrl: process.env.ZEROG_RPC || 'https://evmrpc-testnet.0g.ai',
+      explorer: 'https://chainscan-newton.0g.ai',
+    },
   },
   
   og: {

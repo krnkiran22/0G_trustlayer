@@ -56,6 +56,8 @@ export default function ResultsPage({
         // Try to fetch from API
         const result = await getAnalysisByAddress(resolvedParams.address, network);
         
+        console.log('📊 Analysis result:', result);
+        
         if (result) {
           setAnalysis(result);
         } else {
@@ -172,7 +174,7 @@ export default function ResultsPage({
                     <div className="flex items-start justify-between">
                       <div>
                         <CardTitle className="text-2xl mb-2">
-                          {analysis.tokenInfo.name} ({analysis.tokenInfo.symbol})
+                          {analysis.tokenInfo?.name || 'Smart Contract'} {analysis.tokenInfo?.symbol && `(${analysis.tokenInfo.symbol})`}
                         </CardTitle>
                         <p className="text-sm text-slate-600 font-mono">
                           {formatAddress(analysis.contractAddress)}
@@ -192,7 +194,9 @@ export default function ResultsPage({
                     </div>
                     <div className="bg-slate-50 rounded-lg p-4 mt-6">
                       <h4 className="font-semibold text-slate-900 mb-2">Recommendation</h4>
-                      <p className="text-sm text-slate-700">{analysis.recommendation}</p>
+                      <p className="text-sm text-slate-700">
+                        {analysis.recommendation || 'Analysis in progress. Please wait for detailed recommendations...'}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -210,7 +214,7 @@ export default function ResultsPage({
                   </CardHeader>
                   <CardContent>
                     <div className="grid md:grid-cols-2 gap-4">
-                      {Object.entries(analysis.factors).map(([key, value]) => (
+                      {analysis.factors && Object.entries(analysis.factors).map(([key, value]) => (
                         <RiskFactorCard
                           key={key}
                           name={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
@@ -218,13 +222,18 @@ export default function ResultsPage({
                           description={riskFactorDescriptions[key]}
                         />
                       ))}
+                      {!analysis.factors && (
+                        <div className="col-span-2 text-center py-8 text-gray-500">
+                          <p>Risk factors are being calculated...</p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
 
               {/* Warnings */}
-              {analysis.warnings.length > 0 && (
+              {analysis.warnings && analysis.warnings.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -238,13 +247,15 @@ export default function ResultsPage({
             {/* Sidebar */}
             <div className="space-y-6">
               {/* 0G Verification */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <VerificationProof verification={analysis.ogVerification} />
-              </motion.div>
+              {analysis.ogVerification && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <VerificationProof verification={analysis.ogVerification} />
+                </motion.div>
+              )}
 
               {/* Token Details */}
               <motion.div
@@ -257,17 +268,21 @@ export default function ResultsPage({
                     <CardTitle className="text-lg">Token Details</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div>
-                      <p className="text-xs text-slate-600">Total Supply</p>
-                      <p className="text-sm font-mono text-slate-900">
-                        {parseFloat(analysis.tokenInfo.totalSupply).toExponential(2)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-600">Decimals</p>
-                      <p className="text-sm text-slate-900">{analysis.tokenInfo.decimals}</p>
-                    </div>
-                    {analysis.tokenInfo.holderCount && (
+                    {analysis.tokenInfo?.totalSupply && (
+                      <div>
+                        <p className="text-xs text-slate-600">Total Supply</p>
+                        <p className="text-sm font-mono text-slate-900">
+                          {parseFloat(analysis.tokenInfo.totalSupply).toExponential(2)}
+                        </p>
+                      </div>
+                    )}
+                    {analysis.tokenInfo?.decimals !== undefined && (
+                      <div>
+                        <p className="text-xs text-slate-600">Decimals</p>
+                        <p className="text-sm text-slate-900">{analysis.tokenInfo.decimals}</p>
+                      </div>
+                    )}
+                    {analysis.tokenInfo?.holderCount && (
                       <div>
                         <p className="text-xs text-slate-600">Holder Count</p>
                         <p className="text-sm text-slate-900">

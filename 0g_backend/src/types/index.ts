@@ -56,7 +56,7 @@ export interface Stats {
   avgRiskScore: number;
 }
 
-export type Network = 'ethereum' | 'bsc' | 'polygon';
+export type Network = 'ethereum' | 'bsc' | 'polygon' | '0g';
 
 export interface NetworkConfig {
   name: string;

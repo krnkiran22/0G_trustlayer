@@ -19,6 +19,8 @@ export default function AddressInput({ onSubmit, isLoading = false }: AddressInp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    console.log('📝 Form submitted:', { address, isLoading });
 
     if (!address.trim()) {
       setError('Please enter a contract address');
@@ -30,11 +32,12 @@ export default function AddressInput({ onSubmit, isLoading = false }: AddressInp
       return;
     }
 
+    console.log('✅ Validation passed, calling onSubmit...');
     onSubmit(address);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="relative">
         <Input
           type="text"
@@ -43,17 +46,17 @@ export default function AddressInput({ onSubmit, isLoading = false }: AddressInp
           onChange={(e) => setAddress(e.target.value)}
           disabled={isLoading}
           className={cn(
-            'pl-10 pr-4 h-12 text-base',
-            error && 'border-red-500 focus-visible:ring-red-500'
+            'pl-10 pr-4 h-14 text-base font-medium bg-slate-800/50 border-primary-700/40 text-white placeholder:text-slate-400 focus:bg-slate-800/70',
+            error && 'border-danger-500 focus-visible:ring-danger-500'
           )}
         />
         <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm font-medium text-danger-400">{error}</p>}
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full h-12 text-base"
+        className="w-full h-14 text-base font-semibold shadow-glow-purple"
         size="lg"
       >
         {isLoading ? 'Analyzing...' : 'Analyze Risk'}

@@ -93,7 +93,7 @@ const faqs = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-gradient-to-b from-blue-50 via-white to-indigo-50">
+    <div className="bg-gradient-hero">
       {/* Hero */}
       <section className="py-20">
         <Container>
@@ -102,12 +102,12 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-4xl mx-auto"
           >
-            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6">
-              About <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+              About <span className="bg-gradient-to-r from-primary-400 via-accent-400 to-primary-500 bg-clip-text text-transparent">
                 SafeGuard AI
               </span>
             </h1>
-            <p className="text-xl text-slate-600 mb-8">
+            <p className="text-xl text-slate-300 mb-8">
               Democratizing DeFi security through decentralized AI infrastructure
             </p>
           </motion.div>
@@ -115,7 +115,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-white/95 backdrop-blur-sm">
         <Container>
           <motion.div
             initial={{ opacity: 0, y: 20 }}

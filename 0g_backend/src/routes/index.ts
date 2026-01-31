@@ -6,6 +6,13 @@ import {
   getAnalysisByAddressHandler,
   getStatsHandler,
 } from '../controllers/analysisController';
+import {
+  createSession,
+  sendMessage,
+  getHistory,
+  deleteSession,
+  getSessions
+} from '../controllers/chatController';
 import { validateAnalysisRequest, validateQueryParams } from '../middleware/validators';
 import { analysisLimiter, statsLimiter } from '../middleware/rateLimiter';
 
@@ -25,5 +32,21 @@ router.get('/analysis/address/:address', getAnalysisByAddressHandler);
 
 // GET /api/stats - Get platform stats (with rate limiting)
 router.get('/stats', statsLimiter, getStatsHandler);
+
+// ====== CHAT ENDPOINTS ======
+// POST /api/chat/session - Create new chat session
+router.post('/chat/session', createSession);
+
+// POST /api/chat/message - Send message in chat session
+router.post('/chat/message', sendMessage);
+
+// GET /api/chat/history/:sessionId - Get chat history
+router.get('/chat/history/:sessionId', getHistory);
+
+// DELETE /api/chat/session/:sessionId - Delete chat session
+router.delete('/chat/session/:sessionId', deleteSession);
+
+// GET /api/chat/sessions - Get all active sessions (admin)
+router.get('/chat/sessions', getSessions);
 
 export default router;

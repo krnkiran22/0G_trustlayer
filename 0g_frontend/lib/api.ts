@@ -3,22 +3,65 @@ import { AnalysisResult, Analysis, Stats } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
+console.log('🔗 API Base URL:', API_BASE_URL);
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 120000, // 120 seconds (2 minutes) for 0G analysis
 });
+
+// Add request interceptor for debugging
+api.interceptors.request.use(
+  (config) => {
+    console.log('🌐 Axios Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+      data: config.data,
+    });
+    return config;
+  },
+  (error) => {
+    console.error('❌ Axios Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for debugging
+api.interceptors.response.use(
+  (response) => {
+    console.log('✅ Axios Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data,
+    });
+    return response;
+  },
+  (error) => {
+    console.error('❌ Axios Response Error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+    return Promise.reject(error);
+  }
+);
 
 export async function analyzeContract(
   address: string,
   network: string
 ): Promise<AnalysisResult> {
   try {
+    console.log('📤 API Request:', { url: `${API_BASE_URL}/analyze`, address, network });
     const response = await api.post('/analyze', { address, network });
+    console.log('📥 API Response:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error analyzing contract:', error);
+    console.error('❌ API Error:', error);
     throw new Error('Failed to analyze contract');
   }
 }

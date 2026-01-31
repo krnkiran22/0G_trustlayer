@@ -52,7 +52,7 @@ const howItWorks = [
 
 export default function HomePage() {
   return (
-    <div className="bg-gradient-to-b from-blue-50 via-white to-indigo-50">
+    <div className="bg-gradient-hero">
       {/* Hero Section */}
       <section className="py-20 md:py-32">
         <Container>
@@ -62,21 +62,21 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6">
+              <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
                 Protect Your DeFi Investments with{' '}
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary-400 via-accent-400 to-primary-500 bg-clip-text text-transparent animate-gradient">
                   AI-Powered Risk Analysis
                 </span>
               </h1>
-              <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+              <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
                 Analyze smart contracts for security risks, rug pulls, and vulnerabilities.
                 Powered by 0G's decentralized AI infrastructure.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" asChild>
+                <Button size="lg" asChild className="bg-primary-600 hover:bg-primary-700 shadow-glow-purple hover:shadow-glow-purple transition-all duration-300">
                   <Link href="/analyze">Analyze Contract Now</Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild>
+                <Button size="lg" variant="outline" asChild className="border-primary-400 text-primary-400 hover:bg-primary-900/30 hover:border-primary-300 transition-all duration-300">
                   <Link href="/about">Learn More</Link>
                 </Button>
               </div>
@@ -86,7 +86,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-white/95 backdrop-blur-sm">
         <Container>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
@@ -102,7 +102,7 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 className="text-center"
               >
-                <div className="text-4xl font-bold text-blue-600 mb-2">
+                <div className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent mb-2">
                   <StatsCounter end={stat.value} suffix={stat.suffix || ''} />
                 </div>
                 <div className="text-sm text-slate-600">{stat.label}</div>
@@ -113,13 +113,13 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20">
+      <section className="py-20 bg-slate-900/95 backdrop-blur-sm">
         <Container>
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Why Choose SafeGuard AI?
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
               Advanced decentralized risk analysis at unprecedented cost efficiency
             </p>
           </div>
@@ -133,13 +133,13 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="h-full hover:shadow-lg transition-shadow">
+                <Card className="h-full bg-gradient-card border-primary-800/30 hover:shadow-glow-purple transition-all duration-300">
                   <CardContent className="p-6">
-                    <feature.icon className="h-12 w-12 text-blue-600 mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                    <feature.icon className="h-12 w-12 text-primary-400 mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">
                       {feature.title}
                     </h3>
-                    <p className="text-slate-600">{feature.description}</p>
+                    <p className="text-slate-300">{feature.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -149,7 +149,7 @@ export default function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white/95 backdrop-blur-sm">
         <Container>
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
@@ -171,7 +171,7 @@ export default function HomePage() {
                 className="relative"
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold mb-4">
+                  <div className="w-16 h-16 rounded-full bg-gradient-primary shadow-glow-purple flex items-center justify-center text-white text-2xl font-bold mb-4">
                     {step.step}
                   </div>
                   <h3 className="text-xl font-semibold text-slate-900 mb-2">
